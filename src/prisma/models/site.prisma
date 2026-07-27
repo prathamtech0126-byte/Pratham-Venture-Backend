@@ -1,0 +1,8 @@
+model Site {
+  id          Int          @id @default(autoincrement())
+  name        String
+  slug        String       @unique
+  domain      String
+  createdAt   DateTime     @default(now())
+  submissions Submission[]
+}

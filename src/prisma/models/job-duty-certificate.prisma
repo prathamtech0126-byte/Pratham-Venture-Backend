@@ -1,0 +1,24 @@
+model JobDutyCertificate {
+  id                   Int       @id @default(autoincrement())
+  company              String
+  employeeName         String
+  registrationNo       String?
+  designation          String?
+  employmentStartDate  DateTime?
+  employmentEndDate    DateTime?
+  workResponsibilities String?
+  monthlyGrossSalary   Float?
+  performanceRemarks   String?
+  certificateDate      DateTime?
+  authorizedSignatory  String?
+  employeeRefId        Int?
+  employee             Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+
+  @@index([employeeName])
+  @@index([registrationNo])
+  @@index([deletedAt])
+  @@index([employeeRefId])
+}

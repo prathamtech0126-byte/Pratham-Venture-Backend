@@ -1,0 +1,37 @@
+model SalarySlip {
+  id              Int       @id @default(autoincrement())
+  company         String
+  employeeName    String
+  employeeId      String?
+  designation     String?
+  department      String?
+  month           String
+  basic           Float
+  hra             Float     @default(0)
+  conveyance      Float     @default(0)
+  special         Float     @default(0)
+  pf              Float     @default(0)
+  profTax         Float     @default(0)
+  tds             Float     @default(0)
+  otherDeduction  Float     @default(0)
+  workingDays     Int       @default(0)
+  leaves          Int       @default(0)
+  lopDays         Int       @default(0)
+  paidDays        Int       @default(0)
+  uan             String?
+  pfNumber        String?
+  esiNumber       String?
+  bankName        String?
+  bankAccountNo   String?
+  employeeRefId   Int?
+  employee        Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([month])
+  @@index([employeeName])
+  @@index([employeeId, month, company])
+  @@index([deletedAt])
+  @@index([employeeRefId])
+}

@@ -1,0 +1,35 @@
+enum PurposeOfVisit {
+  TOURISM
+  BUSINESS
+  EDUCATION
+  MEDICAL
+  FAMILY
+  OTHER
+}
+
+model NocCertificate {
+  id                 Int             @id @default(autoincrement())
+  company            String
+  employeeName       String
+  salutation         String?
+  designation        String?
+  joiningDate        DateTime?
+  annualPackage      Float?
+  destinationCountry String
+  purposeOfVisit     PurposeOfVisit
+  travelDurationDays Int
+  certificateDate    DateTime?
+  issuerName         String?
+  issuerDesignation  String?
+  issuerDepartment   String?
+  employeeRefId      Int?
+  employee           Employee?       @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  deletedAt          DateTime?
+
+  @@index([employeeName])
+  @@index([destinationCountry])
+  @@index([deletedAt])
+  @@index([employeeRefId])
+}

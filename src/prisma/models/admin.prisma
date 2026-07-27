@@ -1,0 +1,17 @@
+model Admin {
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  passwordHash  String
+  createdAt     DateTime        @default(now())
+  searchHistory SearchHistory[]
+}
+
+/// Revoked JWTs (logout / force-invalidate). Rows expire with the token and can be cleaned up.
+model TokenBlacklist {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

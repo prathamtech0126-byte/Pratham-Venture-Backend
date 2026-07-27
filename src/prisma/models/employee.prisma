@@ -1,0 +1,34 @@
+/// Staff master — used to prefill Offer Letter & Salary Slip forms by company
+model Employee {
+  id              Int              @id @default(autoincrement())
+  company         String
+  name            String
+  employeeCode    String?
+  email           String?
+  phone           String?
+  designation     String?
+  department      String?
+  workLocation    String?
+  joiningDate     DateTime?
+  annualCtc       Float?
+  uan             String?
+  pfNumber        String?
+  esiNumber       String?
+  bankName        String?
+  bankAccountNo   String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+  salarySlips     SalarySlip[]
+  offerLetters    OfferLetter[]
+  nocCertificates               NocCertificate[]
+  employmentVerificationLetters EmploymentVerificationLetter[]
+  jobDutyCertificates           JobDutyCertificate[]
+  appointmentLetters            AppointmentLetter[]
+
+  @@index([company])
+  @@index([name])
+  @@index([employeeCode])
+  @@index([deletedAt])
+  @@index([company, deletedAt])
+}

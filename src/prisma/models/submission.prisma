@@ -1,0 +1,23 @@
+enum SubmissionStatus {
+  NEW
+  READ
+  REPLIED
+}
+
+model Submission {
+  id        Int              @id @default(autoincrement())
+  siteId    Int
+  site      Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  status    SubmissionStatus @default(NEW)
+  createdAt DateTime         @default(now())
+  deletedAt DateTime?
+
+  @@index([siteId])
+  @@index([status])
+  @@index([deletedAt])
+}

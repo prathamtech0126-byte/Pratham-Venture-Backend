@@ -1,0 +1,35 @@
+enum EmploymentStatus {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+}
+
+model EmploymentVerificationLetter {
+  id                   Int               @id @default(autoincrement())
+  company              String
+  employeeName         String
+  designation          String?
+  employmentStatus     EmploymentStatus?
+  annualSalary         Float?
+  letterDate           DateTime?
+  recipientName        String?
+  recipientTitle       String?
+  recipientOrganization String?
+  recipientAddress     String?
+  hrName               String?
+  hrDesignation        String?
+  hrOfficeAddress      String?
+  hrEmail              String?
+  hrPhone              String?
+  employeeRefId        Int?
+  employee             Employee?         @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  deletedAt            DateTime?
+
+  @@index([employeeName])
+  @@index([recipientOrganization])
+  @@index([deletedAt])
+  @@index([employeeRefId])
+}
