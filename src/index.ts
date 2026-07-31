@@ -23,8 +23,12 @@ import { createSubmission, getStats, listSites } from "./controllers/submissions
 const app = express();
 
 const allowedOrigins = [
+  "https://admin.inklinedigitalsolution.in",
+  "http://admin.inklinedigitalsolution.in",
   "https://inklinedigitalsolutions.in",
   "https://www.inklinedigitalsolutions.in",
+  "https://inklinedigitalsolution.in",
+  "https://www.inklinedigitalsolution.in",
   "https://prarambhmanufacturing.in",
   "https://www.prarambhmanufacturing.in",
   "https://aarogyapathhub.in",
