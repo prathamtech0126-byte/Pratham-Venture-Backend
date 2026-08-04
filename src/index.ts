@@ -21,7 +21,6 @@ import { requireAuth } from "./middleware/auth.middleware";
 import { createSubmission, getStats, listSites } from "./controllers/submissions.controller";
 
 const app = express();
-
 const allowedOrigins = [
   "https://admin.inklinedigitalsolution.in",
   "http://admin.inklinedigitalsolution.in",
@@ -33,6 +32,8 @@ const allowedOrigins = [
   "https://www.prarambhmanufacturing.in",
   "https://aarogyapathhub.in",
   "https://www.aarogyapathhub.in",
+  "https://aarogyapathwellnesscenter.in",      // ADD
+  "https://www.aarogyapathwellnesscenter.in",  // ADD
   "https://dearstrangercafe.in",
   "https://www.dearstrangercafe.in",
 ];
