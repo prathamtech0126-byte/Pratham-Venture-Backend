@@ -11,6 +11,8 @@ model JobDutyCertificate {
   performanceRemarks   String?
   certificateDate      DateTime?
   authorizedSignatory  String?
+  contentMode          DocumentContentMode @default(TEMPLATE)
+  customContent        String?             @db.Text
   employeeRefId        Int?
   employee             Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
   createdAt            DateTime  @default(now())

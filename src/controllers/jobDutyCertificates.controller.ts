@@ -6,6 +6,7 @@ import {
   updateJobDutyCertificateSchema,
 } from "../schemas/jobDutyCertificate.schema";
 import { parseId } from "../utils/parseId";
+import { withPrismaEmployeeRef } from "../utils/prismaFields";
 import { assertActiveEmployeeRef } from "../utils/assertEmployeeRef";
 import { parseSoftDeleteStatus, softDeleteWhere, withStatus } from "../utils/softDelete";
 
@@ -138,9 +139,9 @@ export async function updateJobDutyCertificate(req: Request, res: Response) {
   const certificate = await prisma.jobDutyCertificate.update({
     where: { id },
     data: {
-      ...fields,
+      ...withPrismaEmployeeRef(fields),
       ...(restore ? { deletedAt: null } : {}),
-    },
+    } as Prisma.JobDutyCertificateUpdateInput,
   });
 
   return res.json(withStatus(certificate));

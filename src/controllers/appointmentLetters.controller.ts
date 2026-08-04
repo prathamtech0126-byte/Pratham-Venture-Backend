@@ -7,6 +7,7 @@ import {
   updateAppointmentLetterSchema,
 } from "../schemas/appointmentLetter.schema";
 import { parseId } from "../utils/parseId";
+import { withPrismaEmployeeRef } from "../utils/prismaFields";
 import { assertActiveEmployeeRef } from "../utils/assertEmployeeRef";
 import { parseSoftDeleteStatus, softDeleteWhere, withStatus } from "../utils/softDelete";
 
@@ -154,9 +155,9 @@ export async function updateAppointmentLetter(req: Request, res: Response) {
   const letter = await prisma.appointmentLetter.update({
     where: { id },
     data: {
-      ...fields,
+      ...withPrismaEmployeeRef(fields),
       ...(restore ? { deletedAt: null } : {}),
-    },
+    } as Prisma.AppointmentLetterUpdateInput,
   });
 
   return res.json(withStatus(letter));

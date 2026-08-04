@@ -10,6 +10,8 @@ model OfferLetter {
   letterDate     DateTime?
   hrName         String?
   hrDesignation  String?
+  contentMode    DocumentContentMode @default(TEMPLATE)
+  customContent  String?             @db.Text
   employeeRefId  Int?
   employee       Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
   createdAt      DateTime  @default(now())

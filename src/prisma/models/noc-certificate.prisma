@@ -22,6 +22,8 @@ model NocCertificate {
   issuerName         String?
   issuerDesignation  String?
   issuerDepartment   String?
+  contentMode        DocumentContentMode @default(TEMPLATE)
+  customContent      String?             @db.Text
   employeeRefId      Int?
   employee           Employee?       @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
   createdAt          DateTime        @default(now())

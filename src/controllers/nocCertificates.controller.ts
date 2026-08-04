@@ -7,6 +7,7 @@ import {
   updateNocCertificateSchema,
 } from "../schemas/nocCertificate.schema";
 import { parseId } from "../utils/parseId";
+import { withPrismaEmployeeRef } from "../utils/prismaFields";
 import { assertActiveEmployeeRef } from "../utils/assertEmployeeRef";
 import { parseSoftDeleteStatus, softDeleteWhere, withStatus } from "../utils/softDelete";
 
@@ -147,9 +148,9 @@ export async function updateNocCertificate(req: Request, res: Response) {
   const certificate = await prisma.nocCertificate.update({
     where: { id },
     data: {
-      ...fields,
+      ...withPrismaEmployeeRef(fields),
       ...(restore ? { deletedAt: null } : {}),
-    },
+    } as Prisma.NocCertificateUpdateInput,
   });
 
   return res.json(withStatus(certificate));
