@@ -5,6 +5,11 @@ enum EmploymentStatus {
   INTERN
 }
 
+enum SalaryPeriod {
+  ANNUAL
+  MONTHLY
+}
+
 model EmploymentVerificationLetter {
   id                   Int               @id @default(autoincrement())
   company              String
@@ -12,6 +17,8 @@ model EmploymentVerificationLetter {
   designation          String?
   employmentStatus     EmploymentStatus?
   annualSalary         Float?
+  monthlySalary        Float?
+  salaryPeriod         SalaryPeriod?     @default(ANNUAL)
   letterDate           DateTime?
   recipientName        String?
   recipientTitle       String?

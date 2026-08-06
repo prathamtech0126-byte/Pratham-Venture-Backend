@@ -14,6 +14,8 @@ export const employmentStatusSchema = z.enum([
   "INTERN",
 ]);
 
+export const salaryPeriodSchema = z.enum(["ANNUAL", "MONTHLY"]);
+
 const optionalText = z.string().max(500).optional().nullable();
 
 const employmentVerificationLetterObjectSchema = z.object({
@@ -22,6 +24,8 @@ const employmentVerificationLetterObjectSchema = z.object({
   designation: z.string().max(200).optional().nullable(),
   employmentStatus: employmentStatusSchema.optional().nullable(),
   annualSalary: z.number().nonnegative().optional().nullable(),
+  monthlySalary: z.number().nonnegative().optional().nullable(),
+  salaryPeriod: salaryPeriodSchema.optional().nullable(),
   letterDate: optionalIsoDate,
   recipientName: z.string().max(200).optional().nullable(),
   recipientTitle: z.string().max(200).optional().nullable(),

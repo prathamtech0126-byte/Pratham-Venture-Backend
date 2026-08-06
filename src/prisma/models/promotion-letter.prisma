@@ -1,0 +1,30 @@
+model PromotionLetter {
+  id                    Int       @id @default(autoincrement())
+  company               String
+  employeeName          String
+  recipientAddress      String?
+  letterDate            DateTime?
+  previousDesignation   String?
+  newDesignation        String
+  department            String?
+  effectiveDate         DateTime?
+  monthlySalary         Float?
+  previousRoleStartDate DateTime?
+  performanceHighlights String?   @db.Text
+  newResponsibilities   String?   @db.Text
+  additionalNotes       String?   @db.Text
+  signatoryName         String?
+  signatoryDesignation  String?
+  contentMode           DocumentContentMode @default(TEMPLATE)
+  customContent         String?   @db.Text
+  employeeRefId         Int?
+  employee              Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  @@index([employeeName])
+  @@index([newDesignation])
+  @@index([deletedAt])
+  @@index([employeeRefId])
+}

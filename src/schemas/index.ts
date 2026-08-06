@@ -43,6 +43,15 @@ export type {
   UpdateAppointmentLetterInput,
 } from "./appointmentLetter.schema";
 
+export {
+  createPromotionLetterSchema,
+  updatePromotionLetterSchema,
+} from "./promotionLetter.schema";
+export type {
+  CreatePromotionLetterInput,
+  UpdatePromotionLetterInput,
+} from "./promotionLetter.schema";
+
 export { contactSchema, updateSubmissionSchema } from "./submission.schema";
 export type { ContactInput, UpdateSubmissionInput } from "./submission.schema";
 

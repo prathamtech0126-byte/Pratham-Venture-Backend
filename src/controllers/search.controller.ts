@@ -101,6 +101,15 @@ function appointmentLetterWhere(terms: string[]) {
   ]);
 }
 
+function promotionLetterWhere(terms: string[]) {
+  return buildTextOrWhere(terms, [
+    (term) => ({ employeeName: { contains: term, mode: "insensitive" } }),
+    (term) => ({ newDesignation: { contains: term, mode: "insensitive" } }),
+    (term) => ({ previousDesignation: { contains: term, mode: "insensitive" } }),
+    (term) => ({ company: { contains: term, mode: "insensitive" } }),
+  ]);
+}
+
 function submissionWhere(terms: string[]) {
   return buildTextOrWhere(terms, [
     (term) => ({ name: { contains: term, mode: "insensitive" } }),
@@ -313,6 +322,35 @@ async function searchAppointmentLetters(
   });
 }
 
+async function searchPromotionLetters(
+  terms: string[],
+  recordStatus: ReturnType<typeof resolveRecordStatus>
+): Promise<SearchResultItem[]> {
+  const rows = await prisma.promotionLetter.findMany({
+    where: {
+      ...recordStatusWhere(recordStatus!),
+      ...promotionLetterWhere(terms),
+    },
+    orderBy: [{ deletedAt: "asc" }, { createdAt: "desc" }],
+    take: PER_TYPE_FETCH,
+  });
+
+  return rows.map((row) => {
+    const status = row.deletedAt ? "inactive" : "active";
+    return {
+      id: String(row.id),
+      type: "promotion_letter" as const,
+      title: row.employeeName,
+      subtitle: row.company,
+      meta: [row.newDesignation, status === "active" ? "Active" : "Inactive"]
+        .filter(Boolean)
+        .join(" · "),
+      url: `/promotion-letter/create?id=${row.id}`,
+      status,
+    };
+  });
+}
+
 async function searchSubmissions(
   terms: string[],
   recordStatus: ReturnType<typeof resolveRecordStatus>
@@ -362,6 +400,8 @@ const SEARCH_HANDLERS: Record<
     searchJobDutyCertificates(terms, recordStatus),
   appointment_letter: (terms, _query, recordStatus) =>
     searchAppointmentLetters(terms, recordStatus),
+  promotion_letter: (terms, _query, recordStatus) =>
+    searchPromotionLetters(terms, recordStatus),
   submission: (terms, _query, recordStatus) => searchSubmissions(terms, recordStatus),
 };
 

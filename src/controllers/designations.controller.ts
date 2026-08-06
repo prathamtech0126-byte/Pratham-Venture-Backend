@@ -34,7 +34,7 @@ export async function createDesignation(req: Request, res: Response) {
     },
   });
   if (existing && !existing.deletedAt) {
-    return res.status(400).json({ error: "Designation already exists for this company" });
+    return res.status(409).json({ error: "This designation already exists." });
   }
   if (existing?.deletedAt) {
     const restored = await prisma.designation.update({

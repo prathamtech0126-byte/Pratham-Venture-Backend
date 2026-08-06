@@ -9,6 +9,7 @@ export const SEARCH_TYPES = [
   "employment_verification_letter",
   "job_duty_certificate",
   "appointment_letter",
+  "promotion_letter",
   "submission",
 ] as const;
 
@@ -38,6 +39,7 @@ const TYPE_LABELS: Record<SearchType, string> = {
   employment_verification_letter: "Employment Verification",
   job_duty_certificate: "Job Duty Certificates",
   appointment_letter: "Appointment Letters",
+  promotion_letter: "Promotion Letters",
   submission: "Submissions",
 };
 
@@ -49,6 +51,7 @@ const TYPE_KEYWORDS: Partial<Record<SearchType, string[]>> = {
   employment_verification_letter: ["verification"],
   job_duty_certificate: ["duty"],
   appointment_letter: ["appointment"],
+  promotion_letter: ["promotion", "promote"],
   submission: ["contact", "inquiry", "submission", "message"],
 };
 
@@ -267,6 +270,12 @@ export function buildEmployeeActions(
       actions.push({
         label: `Create appointment letter for ${employee.name}`,
         url: `/appointment-letter/create?employeeRefId=${employee.id}`,
+      });
+    }
+    if (/\bpromotion\b/.test(lower)) {
+      actions.push({
+        label: `Create promotion letter for ${employee.name}`,
+        url: `/promotion-letter/create?employeeRefId=${employee.id}`,
       });
     }
   }

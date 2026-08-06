@@ -164,6 +164,10 @@ export async function getEmployeeOverview(req: Request, res: Response) {
     employeeRefId: id,
     ...softDeleteWhere(docStatus),
   };
+  const promoWhere: Prisma.PromotionLetterWhereInput = {
+    employeeRefId: id,
+    ...softDeleteWhere(docStatus),
+  };
 
   const [
     salaryTotal,
@@ -178,6 +182,8 @@ export async function getEmployeeOverview(req: Request, res: Response) {
     jdcRows,
     apptTotal,
     apptRows,
+    promoTotal,
+    promoRows,
   ] = await Promise.all([
     prisma.salarySlip.count({ where: slipWhere }),
     prisma.salarySlip.findMany({
@@ -209,6 +215,11 @@ export async function getEmployeeOverview(req: Request, res: Response) {
       where: apptWhere,
       orderBy: [{ letterDate: "desc" }, { createdAt: "desc" }],
     }),
+    prisma.promotionLetter.count({ where: promoWhere }),
+    prisma.promotionLetter.findMany({
+      where: promoWhere,
+      orderBy: [{ letterDate: "desc" }, { createdAt: "desc" }],
+    }),
   ]);
 
   return res.json({
@@ -236,6 +247,10 @@ export async function getEmployeeOverview(req: Request, res: Response) {
     appointmentLetters: {
       total: apptTotal,
       data: apptRows.map(withStatus),
+    },
+    promotionLetters: {
+      total: promoTotal,
+      data: promoRows.map(withStatus),
     },
   });
 }
@@ -479,6 +494,48 @@ export async function listEmployeeAppointmentLetters(req: Request, res: Response
   const [total, rows] = await Promise.all([
     prisma.appointmentLetter.count({ where }),
     prisma.appointmentLetter.findMany({
+      where,
+      orderBy: [{ letterDate: "desc" }, { createdAt: "desc" }],
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+  ]);
+
+  return res.json({
+    data: rows.map(withStatus),
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
+}
+
+// GET /api/employees/:id/promotion-letters?page&limit&status=
+export async function listEmployeePromotionLetters(req: Request, res: Response) {
+  const id = parseId(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  const employee = await prisma.employee.findFirst({
+    where: { id, deletedAt: null },
+  });
+  if (!employee) {
+    return res.status(404).json({ error: "Employee not found" });
+  }
+
+  const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(String(req.query.limit ?? "20"), 10) || 20));
+  const status = parseSoftDeleteStatus(req);
+  if (!status) {
+    return res.status(400).json({ error: "Invalid status. Use active, inactive, or all." });
+  }
+
+  const where: Prisma.PromotionLetterWhereInput = {
+    employeeRefId: id,
+    ...softDeleteWhere(status),
+  };
+
+  const [total, rows] = await Promise.all([
+    prisma.promotionLetter.count({ where }),
+    prisma.promotionLetter.findMany({
       where,
       orderBy: [{ letterDate: "desc" }, { createdAt: "desc" }],
       skip: (page - 1) * limit,

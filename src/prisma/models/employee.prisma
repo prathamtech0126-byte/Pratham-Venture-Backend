@@ -25,6 +25,7 @@ model Employee {
   employmentVerificationLetters EmploymentVerificationLetter[]
   jobDutyCertificates           JobDutyCertificate[]
   appointmentLetters            AppointmentLetter[]
+  promotionLetters              PromotionLetter[]
 
   @@index([company])
   @@index([name])

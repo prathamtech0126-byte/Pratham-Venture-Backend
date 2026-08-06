@@ -11,6 +11,7 @@ import {
   listEmployeeEmploymentVerificationLetters,
   listEmployeeJobDutyCertificates,
   listEmployeeAppointmentLetters,
+  listEmployeePromotionLetters,
   getEmployee,
   updateEmployee,
   deleteEmployee,
@@ -30,6 +31,7 @@ router.get("/:id/noc-certificates", listEmployeeNocCertificates);
 router.get("/:id/employment-verification-letters", listEmployeeEmploymentVerificationLetters);
 router.get("/:id/job-duty-certificates", listEmployeeJobDutyCertificates);
 router.get("/:id/appointment-letters", listEmployeeAppointmentLetters);
+router.get("/:id/promotion-letters", listEmployeePromotionLetters);
 router.get("/:id", getEmployee);
 router.patch("/:id", updateEmployee);
 router.delete("/:id", deleteEmployee);
