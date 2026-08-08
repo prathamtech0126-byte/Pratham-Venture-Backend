@@ -55,7 +55,9 @@ app.use(
     },
   })
 );
-app.use(express.json());
+// Custom document HTML (pasted from Word/Docs) can exceed the default 100kb limit
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -104,6 +106,9 @@ app.use((_req, res) => res.status(404).json({ error: "Not found" }));
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err.message === "Not allowed by CORS") {
     return res.status(403).json({ error: "Origin not allowed" });
+  }
+  if (err.name === "PayloadTooLargeError" || (err as { type?: string }).type === "entity.too.large") {
+    return res.status(413).json({ error: "Request body too large. Try shortening pasted document content." });
   }
   console.error(err);
   return res.status(500).json({ error: "Internal server error" });

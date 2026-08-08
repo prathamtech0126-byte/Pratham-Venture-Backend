@@ -5,7 +5,7 @@ export const contentModeSchema = z
   .optional()
   .default("TEMPLATE");
 
-export const customContentSchema = z.string().max(50000).optional().nullable();
+export const customContentSchema = z.string().max(500_000).optional().nullable();
 
 export function stripHtml(html: string): string {
   return html
