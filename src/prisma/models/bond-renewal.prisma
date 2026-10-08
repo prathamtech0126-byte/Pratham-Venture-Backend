@@ -11,6 +11,8 @@ model BondRenewal {
   effectiveDate    DateTime?
   /// e.g. "INR 2.28 Lakhs Per Annum"
   compensation     String?
+  /// Section 2 paragraph under the compensation (editable; defaults to the template text)
+  compensationNote String?   @db.Text
   /// e.g. "Twelve (12) Months"
   bondDuration     String?
   /// Clause 2.1 reporting authority

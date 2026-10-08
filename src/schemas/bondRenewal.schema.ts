@@ -13,6 +13,7 @@ const bondRenewalObjectSchema = z.object({
   workLocation: optionalText(300),
   effectiveDate: optionalIsoDate,
   compensation: optionalText(300),
+  compensationNote: z.string().max(5000).optional().nullable(),
   bondDuration: optionalText(100),
   reportingTo: optionalText(300),
   scheduleA: z.string().max(200_000).optional().nullable(),
