@@ -17,20 +17,24 @@ model AppointmentLetter {
   jobTitle               String
   startDate              DateTime?
   jobResponsibilities    String?
+  /// HR workspace: full JD snapshot (HTML) printed as an annexure
+  jobDescription         String?                 @db.Text
   salaryAmount           Float?
   salaryPaymentFrequency SalaryPaymentFrequency?
   salaryEffectiveDate    DateTime?
   signatoryName          String?
-  contentMode            DocumentContentMode @default(TEMPLATE)
-  customContent          String?             @db.Text
+  contentMode            DocumentContentMode     @default(TEMPLATE)
+  customContent          String?                 @db.Text
   employeeRefId          Int?
   employee               Employee?               @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
   deletedAt              DateTime?
+  workspace              Workspace               @default(ADMIN)
 
   @@index([recipientName])
   @@index([jobTitle])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
   @@index([employeeRefId])
 }

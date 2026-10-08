@@ -1,7 +1,9 @@
 import path from "path";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import { Workspace } from "@prisma/client";
 import prisma from "./config/db";
+import { seedHrCompanies } from "./seedHrCompanies";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -123,9 +125,9 @@ async function seedCompaniesAndDesignations(): Promise<void> {
 
   for (const entry of companiesWithDesignations) {
     const company = await prisma.company.upsert({
-      where: { name: entry.name },
+      where: { workspace_name: { workspace: Workspace.ADMIN, name: entry.name } },
       update: { deletedAt: null },
-      create: { name: entry.name },
+      create: { name: entry.name, workspace: Workspace.ADMIN },
     });
 
     for (const designationName of entry.designations) {
@@ -145,7 +147,7 @@ async function seedCompaniesAndDesignations(): Promise<void> {
         }
       } else {
         await prisma.designation.create({
-          data: { companyId: company.id, name: designationName },
+          data: { companyId: company.id, name: designationName, workspace: Workspace.ADMIN },
         });
       }
       designationCount += 1;
@@ -168,6 +170,7 @@ async function main(): Promise<void> {
   console.log(`Seeded ${sites.length} sites.`);
 
   await seedCompaniesAndDesignations();
+  await seedHrCompanies();
 
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPassword = process.env.ADMIN_PASSWORD;

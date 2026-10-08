@@ -10,7 +10,9 @@
     "prisma:migrate": "prisma migrate dev --schema=src/prisma/schema.prisma",
     "prisma:generate": "prisma generate --schema=src/prisma",
     "prisma:deploy": "prisma migrate deploy --schema=src/prisma/schema.prisma",
-    "seed": "ts-node src/seed.ts"
+    "seed": "ts-node src/seed.ts",
+    "seed:hr": "ts-node src/seedHrCompanies.ts",
+    "create-user": "ts-node src/createUser.ts"
   },
   "prisma": {
     "schema": "src/prisma",

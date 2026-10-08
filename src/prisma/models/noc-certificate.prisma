@@ -8,7 +8,7 @@ enum PurposeOfVisit {
 }
 
 model NocCertificate {
-  id                 Int             @id @default(autoincrement())
+  id                 Int                 @id @default(autoincrement())
   company            String
   employeeName       String
   salutation         String?
@@ -25,13 +25,15 @@ model NocCertificate {
   contentMode        DocumentContentMode @default(TEMPLATE)
   customContent      String?             @db.Text
   employeeRefId      Int?
-  employee           Employee?       @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+  employee           Employee?           @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   deletedAt          DateTime?
+  workspace          Workspace           @default(ADMIN)
 
   @@index([employeeName])
   @@index([destinationCountry])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
   @@index([employeeRefId])
 }

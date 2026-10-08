@@ -1,24 +1,37 @@
 model OfferLetter {
-  id             Int       @id @default(autoincrement())
-  company        String
-  candidateName  String
-  position       String
-  department     String?
-  annualCtc      Float?
-  joiningDate    DateTime?
-  workLocation   String?
-  letterDate     DateTime?
-  hrName         String?
-  hrDesignation  String?
-  contentMode    DocumentContentMode @default(TEMPLATE)
-  customContent  String?             @db.Text
-  employeeRefId  Int?
-  employee       Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
+  id                Int                 @id @default(autoincrement())
+  company           String
+  candidateName     String
+  position          String
+  department        String?
+  annualCtc         Float?
+  joiningDate       DateTime?
+  workLocation      String?
+  letterDate        DateTime?
+  hrName            String?
+  hrDesignation     String?
+  /// HR-format offer letter fields (Pratham International)
+  candidateAddress  String?
+  reportingTime     String?
+  responsibilities  String?             @db.Text
+  trainingDays      Int?
+  probationDays     Int?
+  contactName       String?
+  contactPhone      String?
+  contactEmail      String?
+  /// Company named in the letter text (sample: "Pratham International" even on the Parallax letterhead)
+  letterCompanyName String?
+  contentMode       DocumentContentMode @default(TEMPLATE)
+  customContent     String?             @db.Text
+  employeeRefId     Int?
+  employee          Employee?           @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?
+  workspace         Workspace           @default(ADMIN)
 
   @@index([candidateName])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
   @@index([employeeRefId])
 }

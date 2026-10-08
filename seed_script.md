@@ -16,6 +16,8 @@ cd "Admin  Backend\pratham-ventures-admin\backend"
 | **build** | `npm run build` | Generate Prisma client + compile TypeScript to `dist/` |
 | **start** | `npm run start` | Run production server (`node dist/index.js`) |
 | **seed** | `npm run seed` | Seed sites, companies, designations, and admin user |
+| **seed:hr** | `npm run seed:hr` | Create the 6 HR (Pratham International) letterhead companies, each with the 44 designations + job descriptions from `src/data/hrJobDescriptions.json`. Safe to re-run: never overwrites a JD HR edited, never restores a designation HR deleted |
+| **create-user** | `npm run create-user -- <email> <password> <ADMIN\|HR\|SUPER_ADMIN>` | Create a panel user (or reset an existing user's password/role). HR users share the HR workspace and cannot see Admin data or contact submissions. SUPER_ADMIN switches between both workspaces and manages users from the **Users** page |
 | **prisma:migrate** | `npm run prisma:migrate` | Create/apply migrations in dev (`prisma migrate dev`) |
 | **prisma:generate** | `npm run prisma:generate` | Regenerate Prisma client after schema changes |
 | **prisma:deploy** | `npm run prisma:deploy` | Apply pending migrations on production/staging |

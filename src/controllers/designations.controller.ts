@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma, Workspace } from "@prisma/client";
 import prisma from "../config/db";
+import { getContext } from "../utils/requestContext";
 import {
   createDesignationSchema,
   updateDesignationSchema,
@@ -9,6 +10,29 @@ import { parseId } from "../utils/parseId";
 import { parseSoftDeleteStatus, softDeleteWhere, withStatus } from "../utils/softDelete";
 
 const companySelect = { id: true, name: true } as const;
+
+/**
+ * JD fields to write, or an error when sent outside the HR workspace.
+ * Empty strings clear the field.
+ */
+function jobDescriptionData(input: {
+  jobDescription?: string | null;
+  jobSummary?: string | null;
+}): { data: { jobDescription?: string | null; jobSummary?: string | null } } | { error: string } {
+  const touched = input.jobDescription !== undefined || input.jobSummary !== undefined;
+  if (!touched) return { data: {} };
+  if (getContext()?.workspace !== Workspace.HR) {
+    return { error: "Job descriptions are only available in the HR (Pratham International) workspace." };
+  }
+  const clean = (v: string | null | undefined) =>
+    v === undefined ? undefined : v?.trim() ? v.trim() : null;
+  return {
+    data: {
+      ...(input.jobDescription !== undefined ? { jobDescription: clean(input.jobDescription) } : {}),
+      ...(input.jobSummary !== undefined ? { jobSummary: clean(input.jobSummary) } : {}),
+    },
+  };
+}
 
 // POST /api/designations
 export async function createDesignation(req: Request, res: Response) {
@@ -19,6 +43,10 @@ export async function createDesignation(req: Request, res: Response) {
 
   const name = parsed.data.name.trim();
   const { companyId } = parsed.data;
+  const jd = jobDescriptionData(parsed.data);
+  if ("error" in jd) {
+    return res.status(403).json({ error: jd.error });
+  }
 
   const company = await prisma.company.findFirst({
     where: { id: companyId, deletedAt: null },
@@ -39,14 +67,18 @@ export async function createDesignation(req: Request, res: Response) {
   if (existing?.deletedAt) {
     const restored = await prisma.designation.update({
       where: { id: existing.id },
-      data: { name, deletedAt: null },
+      data: { name, deletedAt: null, ...jd.data },
       include: { company: { select: companySelect } },
     });
     return res.status(201).json(withStatus(restored));
   }
 
   const designation = await prisma.designation.create({
-    data: { companyId, name },
+    data: {
+      companyId,
+      name,
+      ...jd.data,
+    },
     include: { company: { select: companySelect } },
   });
   return res.status(201).json(withStatus(designation));
@@ -95,9 +127,37 @@ export async function listDesignations(req: Request, res: Response) {
     }),
   ]);
 
+  // Full JD HTML is fetched per designation (GET /:id or /job-description) — lists only flag it.
   return res.json({
-    data: rows.map(withStatus),
+    data: rows.map(({ jobDescription, ...row }) => ({
+      ...withStatus(row),
+      hasJobDescription: Boolean(jobDescription),
+    })),
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
+}
+
+/**
+ * GET /api/designations/job-description?companyId=1&name=Visa%20Counsellor
+ * JD + offer-letter summary for the designation picked on a document form.
+ * Returns nulls (not 404) when the designation has no JD, so forms can prefill blindly.
+ */
+export async function getDesignationJobDescription(req: Request, res: Response) {
+  const companyId = parseInt(String(req.query.companyId ?? ""), 10);
+  const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+  if (Number.isNaN(companyId) || !name) {
+    return res.status(400).json({ error: "Query params companyId and name are required" });
+  }
+
+  const designation = await prisma.designation.findFirst({
+    where: { companyId, deletedAt: null, name: { equals: name, mode: "insensitive" } },
+    select: { id: true, name: true, jobDescription: true, jobSummary: true },
+  });
+  return res.json({
+    id: designation?.id ?? null,
+    name: designation?.name ?? name,
+    jobDescription: designation?.jobDescription ?? null,
+    jobSummary: designation?.jobSummary ?? null,
   });
 }
 
@@ -177,6 +237,10 @@ export async function updateDesignation(req: Request, res: Response) {
   }
 
   const { restore, name, companyId } = parsed.data;
+  const jd = jobDescriptionData(parsed.data);
+  if ("error" in jd) {
+    return res.status(403).json({ error: jd.error });
+  }
   const existing = await prisma.designation.findUnique({ where: { id } });
   if (!existing) {
     return res.status(404).json({ error: "Designation not found" });
@@ -218,6 +282,7 @@ export async function updateDesignation(req: Request, res: Response) {
       ...(name !== undefined ? { name: name.trim() } : {}),
       ...(companyId !== undefined ? { companyId } : {}),
       ...(restore ? { deletedAt: null } : {}),
+      ...jd.data,
     },
     include: { company: { select: companySelect } },
   });

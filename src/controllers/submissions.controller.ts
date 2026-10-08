@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { Prisma, SubmissionStatus } from "@prisma/client";
+import { canViewSubmissions } from "../utils/requestContext";
 import prisma from "../config/db";
+import { AuthRequest } from "../middleware/auth.middleware";
 import { contactSchema, updateSubmissionSchema } from "../schemas/submission.schema";
 import { parseId } from "../utils/parseId";
 import {
@@ -160,18 +162,46 @@ export async function deleteSubmission(req: Request, res: Response) {
   return res.json({ success: true });
 }
 
-// GET /api/stats
-export async function getStats(_req: Request, res: Response) {
-  const activeOnly = { deletedAt: null } as const;
+/** Submission counts — Admin only; HR gets zeros and no per-site breakdown. */
+async function getSubmissionStats(includeSubmissions: boolean) {
+  if (!includeSubmissions) {
+    return { total: 0, newCount: 0, readCount: 0, repliedCount: 0, inactive: 0, perSite: [] };
+  }
 
+  const activeOnly = { deletedAt: null } as const;
+  const [total, newCount, readCount, repliedCount, inactive, perSiteCounts, sites] =
+    await Promise.all([
+      prisma.submission.count({ where: activeOnly }),
+      prisma.submission.count({ where: { ...activeOnly, status: SubmissionStatus.NEW } }),
+      prisma.submission.count({ where: { ...activeOnly, status: SubmissionStatus.READ } }),
+      prisma.submission.count({ where: { ...activeOnly, status: SubmissionStatus.REPLIED } }),
+      prisma.submission.count({ where: { deletedAt: { not: null } } }),
+      prisma.submission.groupBy({
+        by: ["siteId", "status"],
+        where: activeOnly,
+        _count: { _all: true },
+      }),
+      prisma.site.findMany({ select: { id: true, name: true, slug: true } }),
+    ]);
+
+  const perSite = sites.map((site) => {
+    const rows = perSiteCounts.filter((r) => r.siteId === site.id);
+    const byStatus: Record<string, number> = { NEW: 0, READ: 0, REPLIED: 0 };
+    let siteTotal = 0;
+    for (const row of rows) {
+      byStatus[row.status] = row._count._all;
+      siteTotal += row._count._all;
+    }
+    return { ...site, total: siteTotal, byStatus };
+  });
+
+  return { total, newCount, readCount, repliedCount, inactive, perSite };
+}
+
+// GET /api/stats
+export async function getStats(req: AuthRequest, res: Response) {
   const [
-    total,
-    newCount,
-    readCount,
-    repliedCount,
-    submissionInactive,
-    perSiteCounts,
-    sites,
+    { total, newCount, readCount, repliedCount, inactive: submissionInactive, perSite },
     offerActive,
     offerInactive,
     slipActive,
@@ -186,6 +216,10 @@ export async function getStats(_req: Request, res: Response) {
     apptInactive,
     promoActive,
     promoInactive,
+    engagementActive,
+    engagementInactive,
+    bondActive,
+    bondInactive,
     employeeActive,
     employeeInactive,
     companyActive,
@@ -193,17 +227,7 @@ export async function getStats(_req: Request, res: Response) {
     designationActive,
     designationInactive,
   ] = await Promise.all([
-    prisma.submission.count({ where: activeOnly }),
-    prisma.submission.count({ where: { ...activeOnly, status: SubmissionStatus.NEW } }),
-    prisma.submission.count({ where: { ...activeOnly, status: SubmissionStatus.READ } }),
-    prisma.submission.count({ where: { ...activeOnly, status: SubmissionStatus.REPLIED } }),
-    prisma.submission.count({ where: { deletedAt: { not: null } } }),
-    prisma.submission.groupBy({
-      by: ["siteId", "status"],
-      where: activeOnly,
-      _count: { _all: true },
-    }),
-    prisma.site.findMany({ select: { id: true, name: true, slug: true } }),
+    getSubmissionStats(canViewSubmissions(req.admin?.role)),
     prisma.offerLetter.count({ where: { deletedAt: null } }),
     prisma.offerLetter.count({ where: { deletedAt: { not: null } } }),
     prisma.salarySlip.count({ where: { deletedAt: null } }),
@@ -218,6 +242,10 @@ export async function getStats(_req: Request, res: Response) {
     prisma.appointmentLetter.count({ where: { deletedAt: { not: null } } }),
     prisma.promotionLetter.count({ where: { deletedAt: null } }),
     prisma.promotionLetter.count({ where: { deletedAt: { not: null } } }),
+    prisma.engagementLetter.count({ where: { deletedAt: null } }),
+    prisma.engagementLetter.count({ where: { deletedAt: { not: null } } }),
+    prisma.bondRenewal.count({ where: { deletedAt: null } }),
+    prisma.bondRenewal.count({ where: { deletedAt: { not: null } } }),
     prisma.employee.count({ where: { deletedAt: null } }),
     prisma.employee.count({ where: { deletedAt: { not: null } } }),
     prisma.company.count({ where: { deletedAt: null } }),
@@ -225,17 +253,6 @@ export async function getStats(_req: Request, res: Response) {
     prisma.designation.count({ where: { deletedAt: null } }),
     prisma.designation.count({ where: { deletedAt: { not: null } } }),
   ]);
-
-  const perSite = sites.map((site) => {
-    const rows = perSiteCounts.filter((r) => r.siteId === site.id);
-    const byStatus: Record<string, number> = { NEW: 0, READ: 0, REPLIED: 0 };
-    let siteTotal = 0;
-    for (const row of rows) {
-      byStatus[row.status] = row._count._all;
-      siteTotal += row._count._all;
-    }
-    return { ...site, total: siteTotal, byStatus };
-  });
 
   return res.json({
     total,
@@ -283,6 +300,16 @@ export async function getStats(_req: Request, res: Response) {
       total: promoActive + promoInactive,
       active: promoActive,
       inactive: promoInactive,
+    },
+    engagementLetters: {
+      total: engagementActive + engagementInactive,
+      active: engagementActive,
+      inactive: engagementInactive,
+    },
+    bondRenewals: {
+      total: bondActive + bondInactive,
+      active: bondActive,
+      inactive: bondInactive,
     },
     employees: {
       total: employeeActive + employeeInactive,

@@ -1,5 +1,5 @@
 model PromotionLetter {
-  id                    Int       @id @default(autoincrement())
+  id                    Int                 @id @default(autoincrement())
   company               String
   employeeName          String
   recipientAddress      String?
@@ -10,21 +10,23 @@ model PromotionLetter {
   effectiveDate         DateTime?
   monthlySalary         Float?
   previousRoleStartDate DateTime?
-  performanceHighlights String?   @db.Text
-  newResponsibilities   String?   @db.Text
-  additionalNotes       String?   @db.Text
+  performanceHighlights String?             @db.Text
+  newResponsibilities   String?             @db.Text
+  additionalNotes       String?             @db.Text
   signatoryName         String?
   signatoryDesignation  String?
   contentMode           DocumentContentMode @default(TEMPLATE)
-  customContent         String?   @db.Text
+  customContent         String?             @db.Text
   employeeRefId         Int?
-  employee              Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  employee              Employee?           @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
   deletedAt             DateTime?
+  workspace             Workspace           @default(ADMIN)
 
   @@index([employeeName])
   @@index([newDesignation])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
   @@index([employeeRefId])
 }

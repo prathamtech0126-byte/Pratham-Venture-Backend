@@ -1,7 +1,23 @@
 import { z } from "zod";
-import { employeeRefIdField, money, monthSchema, restoreField } from "./common";
+import { employeeRefIdField, money, monthSchema, optionalIsoDate, restoreField } from "./common";
 
 const optionalText = z.string().max(200).optional().nullable();
+
+/** Extra employee / leave details printed by the "Pratham format" payslip. */
+const prathamFormatFields = {
+  fatherName: optionalText,
+  gender: z.string().max(20).optional().nullable(),
+  dateOfBirth: optionalIsoDate,
+  pan: z.string().max(20).optional().nullable(),
+  aadhaar: z.string().max(20).optional().nullable(),
+  shift: z.string().max(50).optional().nullable(),
+  location: z.string().max(100).optional().nullable(),
+  weekOffs: z.number().int().nonnegative().optional().nullable(),
+  plBalance: z.number().optional().nullable(),
+  clBalance: z.number().optional().nullable(),
+  slBalance: z.number().optional().nullable(),
+  cwBalance: z.number().optional().nullable(),
+};
 
 export const createSalarySlipSchema = z.object({
   company: z.string().min(1).max(200),
@@ -28,6 +44,7 @@ export const createSalarySlipSchema = z.object({
   esiNumber: z.string().max(50).optional().nullable(),
   bankName: optionalText,
   bankAccountNo: z.string().max(50).optional().nullable(),
+  ...prathamFormatFields,
 });
 
 export const updateSalarySlipSchema = z.object({
@@ -55,6 +72,7 @@ export const updateSalarySlipSchema = z.object({
   esiNumber: z.string().max(50).optional().nullable(),
   bankName: optionalText,
   bankAccountNo: z.string().max(50).optional().nullable(),
+  ...prathamFormatFields,
   restore: restoreField,
 });
 

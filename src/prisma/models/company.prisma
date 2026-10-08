@@ -1,25 +1,33 @@
 model Company {
   id           Int           @id @default(autoincrement())
-  name         String        @unique
+  name         String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   deletedAt    DateTime?
+  workspace    Workspace     @default(ADMIN)
   designations Designation[]
 
+  @@unique([workspace, name])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
 }
 
 model Designation {
-  id        Int       @id @default(autoincrement())
-  companyId Int
-  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id             Int       @id @default(autoincrement())
+  companyId      Int
+  company        Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name           String
+  /// HR workspace only: full job description (HTML) and the short paragraph used in offer letters
+  jobDescription String?   @db.Text
+  jobSummary     String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  workspace      Workspace @default(ADMIN)
 
   @@index([companyId])
   @@index([name])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
   @@index([companyId, deletedAt])
 }

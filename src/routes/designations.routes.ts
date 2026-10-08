@@ -4,6 +4,7 @@ import {
   createDesignation,
   listDesignations,
   listDesignationsByCompany,
+  getDesignationJobDescription,
   getDesignation,
   updateDesignation,
   deleteDesignation,
@@ -16,6 +17,7 @@ router.use(requireAuth);
 router.post("/", createDesignation);
 router.get("/", listDesignations);
 router.get("/by-company", listDesignationsByCompany);
+router.get("/job-description", getDesignationJobDescription);
 router.get("/:id", getDesignation);
 router.patch("/:id", updateDesignation);
 router.delete("/:id", deleteDesignation);

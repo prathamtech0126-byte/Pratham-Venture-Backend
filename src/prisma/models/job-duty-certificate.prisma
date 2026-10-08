@@ -1,5 +1,5 @@
 model JobDutyCertificate {
-  id                   Int       @id @default(autoincrement())
+  id                   Int                 @id @default(autoincrement())
   company              String
   employeeName         String
   registrationNo       String?
@@ -14,13 +14,15 @@ model JobDutyCertificate {
   contentMode          DocumentContentMode @default(TEMPLATE)
   customContent        String?             @db.Text
   employeeRefId        Int?
-  employee             Employee? @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  employee             Employee?           @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
   deletedAt            DateTime?
+  workspace            Workspace           @default(ADMIN)
 
   @@index([employeeName])
   @@index([registrationNo])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
   @@index([employeeRefId])
 }

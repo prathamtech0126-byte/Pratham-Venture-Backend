@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/auth.middleware";
+import { Role } from "@prisma/client";
+import { requireAuth, requireRole } from "../middleware/auth.middleware";
 import {
   listSubmissions,
   getSubmission,
@@ -9,7 +10,8 @@ import {
 
 const router = Router();
 
-router.use(requireAuth);
+// Contact-form submissions: Admin + Super Admin only — HR is blocked completely.
+router.use(requireAuth, requireRole(Role.ADMIN, Role.SUPER_ADMIN));
 
 router.get("/", listSubmissions);
 router.get("/:id", getSubmission);

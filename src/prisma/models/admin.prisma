@@ -1,7 +1,17 @@
+/// ADMIN works in the ADMIN workspace (+ contact submissions); HR works in the HR workspace only.
+/// SUPER_ADMIN switches between both workspaces (X-Workspace header), sees submissions, and manages users.
+enum Role {
+  ADMIN
+  HR
+  SUPER_ADMIN
+}
+
+/// Panel user (any role — the model keeps its original name to avoid a table rename).
 model Admin {
   id            Int             @id @default(autoincrement())
   email         String          @unique
   passwordHash  String
+  role          Role            @default(ADMIN)
   createdAt     DateTime        @default(now())
   searchHistory SearchHistory[]
 }

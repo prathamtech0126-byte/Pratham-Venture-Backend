@@ -1,0 +1,34 @@
+/// Employment Engagement Letter — HR workspace only (training period + probation terms)
+model EngagementLetter {
+  id                   Int                 @id @default(autoincrement())
+  company              String
+  letterDate           DateTime?
+  employeeName         String
+  employeeAddress      String?
+  designation          String
+  department           String?
+  reportingTo          String?
+  workLocation         String?
+  joiningDate          DateTime?
+  annualCtc            Float?
+  reportingTime        String?
+  trainingDays         Int?
+  probationDays        Int?
+  signatoryName        String?
+  signatoryDesignation String?
+  /// "For <company>" above the signature (sample: Pratham International)
+  signatoryCompany     String?
+  contentMode          DocumentContentMode @default(TEMPLATE)
+  customContent        String?             @db.Text
+  employeeRefId        Int?
+  employee             Employee?           @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  deletedAt            DateTime?
+  workspace            Workspace           @default(HR)
+
+  @@index([employeeName])
+  @@index([deletedAt])
+  @@index([workspace, deletedAt])
+  @@index([employeeRefId])
+}

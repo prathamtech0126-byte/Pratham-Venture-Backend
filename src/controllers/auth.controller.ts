@@ -14,7 +14,9 @@ export async function login(req: AuthRequest, res: Response) {
 
   const { email, password } = parsed.data;
 
-  const admin = await prisma.admin.findUnique({ where: { email } });
+  const admin = await prisma.admin.findFirst({
+    where: { email: { equals: email.trim(), mode: "insensitive" } },
+  });
   if (!admin) {
     return res.status(401).json({ error: "Invalid email or password" });
   }
@@ -32,7 +34,12 @@ export async function login(req: AuthRequest, res: Response) {
   const expiresIn = (process.env.JWT_EXPIRES_IN || "1d") as jwt.SignOptions["expiresIn"];
   const token = jwt.sign({ id: admin.id, email: admin.email }, secret, { expiresIn });
 
-  return res.json({ token, admin: { id: admin.id, email: admin.email } });
+  return res.json({ token, admin: { id: admin.id, email: admin.email, role: admin.role } });
+}
+
+// GET /api/auth/me — current user (role may have changed since login)
+export async function me(req: AuthRequest, res: Response) {
+  return res.json({ admin: req.admin });
 }
 
 // POST /api/auth/logout — revoke current JWT server-side until it expires

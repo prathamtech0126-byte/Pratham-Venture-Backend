@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { canViewSubmissions } from "../utils/requestContext";
 import prisma from "../config/db";
 import { AuthRequest } from "../middleware/auth.middleware";
 import { saveRecentSearchSchema } from "../schemas/search.schema";
@@ -415,10 +416,17 @@ export async function globalSearch(req: AuthRequest, res: Response) {
   }
 
   const limit = Math.min(20, Math.max(1, parseInt(String(req.query.limit ?? "10"), 10) || 10));
-  const types = parseSearchTypes(typeof req.query.types === "string" ? req.query.types : undefined);
-  if (!types) {
+  const parsedTypes = parseSearchTypes(
+    typeof req.query.types === "string" ? req.query.types : undefined
+  );
+  if (!parsedTypes) {
     return res.status(400).json({ error: "Invalid types filter." });
   }
+  // Contact-form submissions are Admin-only.
+  const types =
+    canViewSubmissions(req.admin?.role)
+      ? parsedTypes
+      : parsedTypes.filter((type) => type !== "submission");
 
   const statusParam = parseSoftDeleteStatus(req);
   if (req.query.status !== undefined && !statusParam) {

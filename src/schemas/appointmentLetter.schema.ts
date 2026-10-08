@@ -28,6 +28,8 @@ const appointmentLetterObjectSchema = z.object({
   jobTitle: z.string().max(200).optional().nullable(),
   startDate: optionalIsoDate,
   jobResponsibilities: optionalLongText,
+  /** HR: full JD snapshot (HTML) printed as an annexure */
+  jobDescription: z.string().max(200_000).optional().nullable(),
   salaryAmount: z.number().nonnegative().optional().nullable(),
   salaryPaymentFrequency: salaryPaymentFrequencySchema.optional().nullable(),
   salaryEffectiveDate: optionalIsoDate,

@@ -14,11 +14,16 @@ import employmentVerificationLettersRoutes from "./routes/employmentVerification
 import jobDutyCertificatesRoutes from "./routes/jobDutyCertificates.routes";
 import appointmentLettersRoutes from "./routes/appointmentLetters.routes";
 import promotionLettersRoutes from "./routes/promotionLetters.routes";
+import engagementLettersRoutes from "./routes/engagementLetters.routes";
+import bondRenewalsRoutes from "./routes/bondRenewals.routes";
+import hrAssetsRoutes from "./routes/hrAssets.routes";
 import employeesRoutes from "./routes/employees.routes";
 import companiesRoutes from "./routes/companies.routes";
 import designationsRoutes from "./routes/designations.routes";
 import searchRoutes from "./routes/search.routes";
-import { requireAuth } from "./middleware/auth.middleware";
+import usersRoutes from "./routes/users.routes";
+import { Role } from "@prisma/client";
+import { requireAuth, requireRole } from "./middleware/auth.middleware";
 import { createSubmission, getStats, listSites } from "./controllers/submissions.controller";
 
 const app = express();
@@ -90,12 +95,16 @@ app.use("/api/employment-verification-letters", employmentVerificationLettersRou
 app.use("/api/job-duty-certificates", jobDutyCertificatesRoutes);
 app.use("/api/appointment-letters", appointmentLettersRoutes);
 app.use("/api/promotion-letters", promotionLettersRoutes);
+app.use("/api/engagement-letters", engagementLettersRoutes);
+app.use("/api/bond-renewals", bondRenewalsRoutes);
+app.use("/api/hr-assets", hrAssetsRoutes);
 app.use("/api/employees", employeesRoutes);
 app.use("/api/companies", companiesRoutes);
 app.use("/api/designations", designationsRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/users", usersRoutes);
 app.get("/api/stats", requireAuth, getStats);
-app.get("/api/sites", requireAuth, listSites);
+app.get("/api/sites", requireAuth, requireRole(Role.ADMIN, Role.SUPER_ADMIN), listSites);
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 

@@ -11,34 +11,36 @@ enum SalaryPeriod {
 }
 
 model EmploymentVerificationLetter {
-  id                   Int               @id @default(autoincrement())
-  company              String
-  employeeName         String
-  designation          String?
-  employmentStatus     EmploymentStatus?
-  annualSalary         Float?
-  monthlySalary        Float?
-  salaryPeriod         SalaryPeriod?     @default(ANNUAL)
-  letterDate           DateTime?
-  recipientName        String?
-  recipientTitle       String?
+  id                    Int                 @id @default(autoincrement())
+  company               String
+  employeeName          String
+  designation           String?
+  employmentStatus      EmploymentStatus?
+  annualSalary          Float?
+  monthlySalary         Float?
+  salaryPeriod          SalaryPeriod?       @default(ANNUAL)
+  letterDate            DateTime?
+  recipientName         String?
+  recipientTitle        String?
   recipientOrganization String?
-  recipientAddress     String?
-  hrName               String?
-  hrDesignation        String?
-  hrOfficeAddress      String?
-  hrEmail              String?
-  hrPhone              String?
-  contentMode          DocumentContentMode @default(TEMPLATE)
-  customContent        String?             @db.Text
-  employeeRefId        Int?
-  employee             Employee?         @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  deletedAt            DateTime?
+  recipientAddress      String?
+  hrName                String?
+  hrDesignation         String?
+  hrOfficeAddress       String?
+  hrEmail               String?
+  hrPhone               String?
+  contentMode           DocumentContentMode @default(TEMPLATE)
+  customContent         String?             @db.Text
+  employeeRefId         Int?
+  employee              Employee?           @relation(fields: [employeeRefId], references: [id], onDelete: SetNull)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  deletedAt             DateTime?
+  workspace             Workspace           @default(ADMIN)
 
   @@index([employeeName])
   @@index([recipientOrganization])
   @@index([deletedAt])
+  @@index([workspace, deletedAt])
   @@index([employeeRefId])
 }

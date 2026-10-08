@@ -1,0 +1,5 @@
+/// Data partition. Every HR-document table carries one; a user only ever sees their own workspace.
+enum Workspace {
+  ADMIN
+  HR
+}
